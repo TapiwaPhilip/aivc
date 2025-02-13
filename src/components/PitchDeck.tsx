@@ -21,16 +21,32 @@ export const PitchDeck = () => {
   };
 
   return (
-    <div className="py-24 bg-background">
+    <div id="pitch-deck-section" className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-secondary">
               Submit Your Pitch
             </h2>
-            <p className="text-muted text-lg mb-8">
+            <p className="text-muted text-lg mb-4">
               Are you building an AI-powered solution with global impact? We want to hear from you.
             </p>
+            <div className="bg-secondary/5 p-6 rounded-xl mb-8">
+              <h3 className="text-xl font-semibold mb-3 text-secondary">
+                Calling All African AI Innovators
+              </h3>
+              <p className="text-muted">
+                We're particularly interested in connecting with founders who are:
+              </p>
+              <ul className="text-muted mt-2 space-y-2">
+                <li>• Building AI startups in Africa</li>
+                <li>• African founders building AI solutions globally</li>
+                <li>• Teams with African co-founders</li>
+              </ul>
+              <p className="text-primary font-medium mt-4">
+                If you're an African founder or have African roots, we especially want to hear your story.
+              </p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-2xl shadow-lg">
