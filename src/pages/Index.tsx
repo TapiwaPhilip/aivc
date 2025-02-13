@@ -4,6 +4,7 @@ import { Values } from "@/components/Values";
 import { Impact } from "@/components/Impact";
 import { GlobalImpact } from "@/components/GlobalImpact";
 import { PitchDeck } from "@/components/PitchDeck";
+import { Footer } from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -13,6 +14,7 @@ const Index = () => {
       <GlobalImpact />
       <Impact />
       <PitchDeck />
+      <Footer />
     </main>
   );
 };
