@@ -1,11 +1,12 @@
 
 import { Globe, Rocket, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const Hero = () => {
-  const scrollToForm = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const formSection = document.getElementById('join-fund-section');
-    formSection?.scrollIntoView({ behavior: 'smooth' });
+  const navigate = useNavigate();
+
+  const handleJoinFund = () => {
+    navigate('/register');
   };
 
   return (
@@ -30,7 +31,7 @@ export const Hero = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
-              onClick={scrollToForm}
+              onClick={handleJoinFund}
               className="px-8 py-4 bg-primary text-white rounded-full font-semibold hover:bg-primary/90 transition-colors"
             >
               Join the Fund
