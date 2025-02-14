@@ -9,6 +9,10 @@ export const Hero = () => {
     navigate('/register');
   };
 
+  const handleExplorePortfolio = () => {
+    navigate('/portfolio');
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary to-background">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518770660439-4636190af475')] bg-cover bg-center opacity-10" />
@@ -36,8 +40,11 @@ export const Hero = () => {
             >
               Join the Fund
             </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-accent text-accent rounded-full font-semibold hover:bg-accent/10 transition-colors">
-              Explore Startups
+            <button 
+              onClick={handleExplorePortfolio}
+              className="px-8 py-4 bg-transparent border-2 border-accent text-accent rounded-full font-semibold hover:bg-accent/10 transition-colors"
+            >
+              Explore Portfolio
             </button>
           </div>
         </div>
