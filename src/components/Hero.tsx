@@ -2,6 +2,12 @@
 import { Globe, Rocket, Star } from "lucide-react";
 
 export const Hero = () => {
+  const scrollToForm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const formSection = document.getElementById('join-fund-section');
+    formSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary to-background">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518770660439-4636190af475')] bg-cover bg-center opacity-10" />
@@ -23,7 +29,10 @@ export const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-primary text-white rounded-full font-semibold hover:bg-primary/90 transition-colors">
+            <button 
+              onClick={scrollToForm}
+              className="px-8 py-4 bg-primary text-white rounded-full font-semibold hover:bg-primary/90 transition-colors"
+            >
               Join the Fund
             </button>
             <button className="px-8 py-4 bg-transparent border-2 border-accent text-accent rounded-full font-semibold hover:bg-accent/10 transition-colors">
