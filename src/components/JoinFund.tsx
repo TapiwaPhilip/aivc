@@ -3,14 +3,27 @@ import { Rocket, DollarSign, Users } from "lucide-react";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useState } from "react";
+import { useToast } from "./ui/use-toast";
 
 export const JoinFund = () => {
   const [submitted, setSubmitted] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    console.log("Join fund form submitted");
+    
+    // Show success message
+    toast({
+      title: "Application Submitted Successfully!",
+      description: "Thank you for your interest in joining AI Afrika Fund. Our team will contact you shortly.",
+      variant: "default",
+      duration: 5000,
+    });
+
+    // Reset form
+    (event.target as HTMLFormElement).reset();
+    setSubmitted(false);
   };
 
   return (
@@ -127,8 +140,9 @@ export const JoinFund = () => {
             <button
               type="submit"
               className="w-full px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+              disabled={submitted}
             >
-              Join the Fund
+              {submitted ? "Submitting..." : "Join the Fund"}
             </button>
           </form>
         </div>
