@@ -1,3 +1,4 @@
+
 import { Rocket, DollarSign, Users, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,7 +34,7 @@ const Register = () => {
     
     try {
       // Insert investor data into Supabase
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('investors')
         .insert({
           first_name: formData.firstName,
@@ -42,9 +43,31 @@ const Register = () => {
           organization: formData.organization,
           investment_range: formData.investmentRange,
           message: formData.message || null
-        });
+        })
+        .select();
       
       if (error) throw error;
+
+      // Send email notification
+      try {
+        await supabase.functions.invoke("send-notification-emails", {
+          body: {
+            type: "investor",
+            record: {
+              id: data[0].id,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              email: formData.email,
+              organization: formData.organization,
+              investment_range: formData.investmentRange,
+              message: formData.message || null
+            }
+          }
+        });
+      } catch (emailError) {
+        console.error("Error sending email notification:", emailError);
+        // Continue with the form submission flow even if email fails
+      }
 
       toast({
         title: "Application Submitted Successfully!",

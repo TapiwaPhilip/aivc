@@ -72,7 +72,7 @@ export const PitchDeck = () => {
       if (uploadError) throw uploadError;
 
       // 2. Save metadata to pitch_decks table
-      const { error: dbError } = await supabase
+      const { data, error: dbError } = await supabase
         .from('pitch_decks')
         .insert({
           company_name: formData.company,
@@ -81,9 +81,31 @@ export const PitchDeck = () => {
           file_path: filePath,
           file_type: selectedFile.type,
           file_size: selectedFile.size
-        });
+        })
+        .select();
 
       if (dbError) throw dbError;
+
+      // 3. Send email notification
+      try {
+        await supabase.functions.invoke("send-notification-emails", {
+          body: {
+            type: "pitch_deck",
+            record: {
+              id: data[0].id,
+              company_name: formData.company,
+              description: formData.description,
+              file_name: selectedFile.name,
+              file_path: filePath,
+              file_type: selectedFile.type,
+              file_size: selectedFile.size
+            }
+          }
+        });
+      } catch (emailError) {
+        console.error("Error sending email notification:", emailError);
+        // Continue with the form submission flow even if email fails
+      }
 
       // Show success toast
       toast({
