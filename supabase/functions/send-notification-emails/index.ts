@@ -43,9 +43,13 @@ const formatInvestorEmail = (data: any) => {
 
 const formatPitchDeckEmail = async (data: any) => {
   // Generate a signed URL for the pitch deck file that expires in 24 hours
-  const { data: fileData } = await supabase.storage
+  const { data: fileData, error: urlError } = await supabase.storage
     .from('pitch-decks')
     .createSignedUrl(data.file_path, 60 * 60 * 24);
+  
+  if (urlError) {
+    console.error("Error generating signed URL:", urlError);
+  }
   
   const fileUrl = fileData?.signedUrl || "#";
   
@@ -82,7 +86,12 @@ const handler = async (req: Request): Promise<Response> => {
   // Listen for the test event
   if (req.method === "GET") {
     console.log("Test endpoint accessed");
-    return new Response(JSON.stringify({ status: "OK", message: "Email notification service is running", configuredEmail: TO_EMAIL }), {
+    return new Response(JSON.stringify({ 
+      status: "OK", 
+      message: "Email notification service is running", 
+      configuredEmail: TO_EMAIL,
+      resendApiKeyConfigured: !!Deno.env.get("RESEND_API_KEY"),
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
@@ -98,6 +107,8 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const body = await req.json();
+    console.log("Received notification request:", JSON.stringify(body));
+    
     const { type, record } = body;
     
     // Determine email content based on the notification type
@@ -116,6 +127,9 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    console.log("Sending email to:", TO_EMAIL);
+    console.log("Email subject:", subject);
+
     // Send the email
     const result = await resend.emails.send({
       from: FROM_EMAIL,
@@ -124,7 +138,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: htmlContent,
     });
 
-    console.log("Email sent:", result);
+    console.log("Email sent result:", result);
 
     return new Response(
       JSON.stringify({ status: "success", message: "Email notification sent", data: result }),
