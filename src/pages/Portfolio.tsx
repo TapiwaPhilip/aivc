@@ -1,6 +1,6 @@
 
-import { Building2, Rocket, Brain, Stars, Globe, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Building2, Rocket, Brain, Stars, Globe, ArrowRight, Home } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 
 const Portfolio = () => {
   const navigate = useNavigate();
@@ -46,13 +46,21 @@ const Portfolio = () => {
       <div className="relative bg-gradient-to-br from-secondary to-background py-16">
         <div className="absolute inset-0 bg-[radial-gradient(circle,_rgba(255,255,255,0.1)_1px,_transparent_1px)] bg-[length:15px_15px] pointer-events-none opacity-30" />
         <div className="container mx-auto px-4">
-          <button 
-            onClick={handleBack}
-            className="flex items-center text-white/80 hover:text-white mb-8 transition-colors"
-          >
-            <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
-            Back to Home
-          </button>
+          <div className="flex justify-between items-center mb-8">
+            <button 
+              onClick={handleBack}
+              className="flex items-center text-white/80 hover:text-white transition-colors"
+            >
+              <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
+              Back to Home
+            </button>
+            
+            <Link to="/" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium">
+              <Home className="w-4 h-4" />
+              Back to Home Page
+            </Link>
+          </div>
+          
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block p-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 mb-6">
               <Globe className="w-8 h-8 text-accent" />

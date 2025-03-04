@@ -1,10 +1,10 @@
 
-import { Rocket, DollarSign, Users } from "lucide-react";
+import { Rocket, DollarSign, Users, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -30,6 +30,13 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-background py-24">
+      <div className="absolute top-0 right-0 p-6">
+        <Link to="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium">
+          <Home className="w-4 h-4" />
+          Back to Home Page
+        </Link>
+      </div>
+      
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
