@@ -3,9 +3,17 @@ import { CloudUpload, FileText } from "lucide-react";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const PitchDeck = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [formData, setFormData] = useState({
+    company: '',
+    description: ''
+  });
+  const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -14,10 +22,83 @@ export const PitchDeck = () => {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Here you would typically handle the file upload to your backend
-    console.log("File selected:", selectedFile);
+    
+    if (!selectedFile) {
+      toast({
+        title: "File Required",
+        description: "Please upload a pitch deck file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // 1. Upload file to Supabase Storage
+      const fileExt = selectedFile.name.split('.').pop();
+      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('pitch-decks')
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // 2. Save metadata to pitch_decks table
+      const { error: dbError } = await supabase
+        .from('pitch_decks')
+        .insert({
+          company_name: formData.company,
+          description: formData.description,
+          file_name: selectedFile.name,
+          file_path: filePath,
+          file_type: selectedFile.type,
+          file_size: selectedFile.size
+        });
+
+      if (dbError) throw dbError;
+
+      // Show success toast
+      toast({
+        title: "Pitch Deck Submitted",
+        description: "Your pitch deck has been successfully submitted. We'll review it soon!",
+        variant: "default",
+      });
+
+      // Reset form
+      setFormData({
+        company: '',
+        description: ''
+      });
+      setSelectedFile(null);
+      
+      // Reset file input (we need to access the DOM element directly)
+      const fileInput = document.getElementById('pitch-deck') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    } catch (error: any) {
+      console.error("Error submitting pitch deck:", error);
+      toast({
+        title: "Submission Error",
+        description: error.message || "There was an error submitting your pitch deck. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -59,6 +140,8 @@ export const PitchDeck = () => {
                   id="company"
                   placeholder="Your Company Name"
                   required
+                  value={formData.company}
+                  onChange={handleInputChange}
                 />
               </div>
 
@@ -72,6 +155,8 @@ export const PitchDeck = () => {
                   className="min-h-[100px]"
                   maxLength={500}
                   required
+                  value={formData.description}
+                  onChange={handleInputChange}
                 />
               </div>
 
@@ -113,8 +198,9 @@ export const PitchDeck = () => {
             <button
               type="submit"
               className="w-full px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+              disabled={isSubmitting}
             >
-              Submit Pitch Deck
+              {isSubmitting ? "Submitting..." : "Submit Pitch Deck"}
             </button>
           </form>
         </div>

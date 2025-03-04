@@ -1,31 +1,79 @@
-
 import { Rocket, DollarSign, Users, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    organization: '',
+    investmentRange: '',
+    message: ''
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
     
-    toast({
-      title: "Application Submitted Successfully!",
-      description: "Thank you for your interest in joining AI Afrika Fund. Our team will contact you shortly.",
-      variant: "default",
-      duration: 5000,
-    });
+    try {
+      // Insert investor data into Supabase
+      const { error } = await supabase
+        .from('investors')
+        .insert({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          organization: formData.organization,
+          investment_range: formData.investmentRange,
+          message: formData.message || null
+        });
+      
+      if (error) throw error;
 
-    // Reset form and redirect to home
-    (event.target as HTMLFormElement).reset();
-    setSubmitted(false);
-    setTimeout(() => navigate('/'), 2000);
+      toast({
+        title: "Application Submitted Successfully!",
+        description: "Thank you for your interest in joining AI Afrika Fund. Our team will contact you shortly.",
+        variant: "default",
+        duration: 5000,
+      });
+
+      // Reset form and redirect to home
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        organization: '',
+        investmentRange: '',
+        message: ''
+      });
+      setSubmitted(false);
+      setTimeout(() => navigate('/'), 2000);
+    } catch (error: any) {
+      console.error("Error submitting investor form:", error);
+      toast({
+        title: "Submission Error",
+        description: error.message || "There was an error submitting your application. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+      });
+      setSubmitted(false);
+    }
   };
 
   return (
@@ -81,6 +129,8 @@ const Register = () => {
                   id="firstName"
                   placeholder="Your first name"
                   required
+                  value={formData.firstName}
+                  onChange={handleChange}
                 />
               </div>
               <div>
@@ -91,6 +141,8 @@ const Register = () => {
                   id="lastName"
                   placeholder="Your last name"
                   required
+                  value={formData.lastName}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -104,6 +156,8 @@ const Register = () => {
                 type="email"
                 placeholder="your@email.com"
                 required
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
 
@@ -115,6 +169,8 @@ const Register = () => {
                 id="organization"
                 placeholder="Your organization name"
                 required
+                value={formData.organization}
+                onChange={handleChange}
               />
             </div>
 
@@ -126,6 +182,8 @@ const Register = () => {
                 id="investmentRange"
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 required
+                value={formData.investmentRange}
+                onChange={handleChange}
               >
                 <option value="">Select investment range</option>
                 <option value="50k-250k">$50,000 - $250,000</option>
@@ -143,6 +201,8 @@ const Register = () => {
                 id="message"
                 placeholder="Tell us about your investment interests and experience"
                 className="min-h-[100px]"
+                value={formData.message}
+                onChange={handleChange}
               />
             </div>
 
