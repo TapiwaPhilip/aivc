@@ -13,6 +13,7 @@ export const PitchDeck = () => {
     company: '',
     description: ''
   });
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +31,17 @@ export const PitchDeck = () => {
     }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      company: '',
+      description: ''
+    });
+    setSelectedFile(null);
+    // Reset file input (we need to access the DOM element directly)
+    const fileInput = document.getElementById('pitch-deck') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
@@ -43,6 +55,7 @@ export const PitchDeck = () => {
     }
 
     setIsSubmitting(true);
+    setIsSuccess(false);
 
     try {
       // 1. Upload file to Supabase Storage
@@ -79,16 +92,11 @@ export const PitchDeck = () => {
         variant: "default",
       });
 
-      // Reset form
-      setFormData({
-        company: '',
-        description: ''
-      });
-      setSelectedFile(null);
+      // Set success state
+      setIsSuccess(true);
       
-      // Reset file input (we need to access the DOM element directly)
-      const fileInput = document.getElementById('pitch-deck') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
+      // Reset form
+      resetForm();
     } catch (error: any) {
       console.error("Error submitting pitch deck:", error);
       toast({
@@ -130,79 +138,94 @@ export const PitchDeck = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-2xl shadow-lg">
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="company" className="block text-sm font-medium text-secondary mb-2">
-                  Company Name
-                </label>
-                <Input 
-                  id="company"
-                  placeholder="Your Company Name"
-                  required
-                  value={formData.company}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-secondary mb-2">
-                  Brief Description
-                </label>
-                <Textarea 
-                  id="description"
-                  placeholder="Tell us about your AI solution and its global impact potential (max 500 characters)"
-                  className="min-h-[100px]"
-                  maxLength={500}
-                  required
-                  value={formData.description}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="pitch-deck" className="block text-sm font-medium text-secondary mb-2">
-                  Upload Pitch Deck
-                </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-lg">
-                  <div className="space-y-2 text-center">
-                    <CloudUpload className="mx-auto h-12 w-12 text-muted" />
-                    <div className="flex text-sm text-gray-600">
-                      <label htmlFor="pitch-deck" className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80">
-                        <span>Upload a file</span>
-                        <Input 
-                          id="pitch-deck"
-                          type="file"
-                          className="sr-only"
-                          accept=".pdf,.ppt,.pptx"
-                          onChange={handleFileChange}
-                          required
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-muted">
-                      PDF or PowerPoint up to 10MB
-                    </p>
-                  </div>
-                </div>
-                {selectedFile && (
-                  <div className="mt-3 flex items-center gap-2 text-sm text-muted">
-                    <FileText className="w-4 h-4" />
-                    <span>{selectedFile.name}</span>
-                  </div>
-                )}
-              </div>
+          {isSuccess ? (
+            <div className="text-center p-8 bg-green-50 rounded-2xl shadow-lg">
+              <h3 className="text-2xl font-bold text-green-700 mb-4">Thank You!</h3>
+              <p className="text-lg text-gray-700 mb-6">
+                Thanks for submitting your Pitch Deck. Our team will contact you very soon.
+              </p>
+              <button
+                onClick={() => setIsSuccess(false)}
+                className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+              >
+                Submit Another Pitch
+              </button>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-2xl shadow-lg">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium text-secondary mb-2">
+                    Company Name
+                  </label>
+                  <Input 
+                    id="company"
+                    placeholder="Your Company Name"
+                    required
+                    value={formData.company}
+                    onChange={handleInputChange}
+                  />
+                </div>
 
-            <button
-              type="submit"
-              className="w-full px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Submit Pitch Deck"}
-            </button>
-          </form>
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-secondary mb-2">
+                    Brief Description
+                  </label>
+                  <Textarea 
+                    id="description"
+                    placeholder="Tell us about your AI solution and its global impact potential (max 500 characters)"
+                    className="min-h-[100px]"
+                    maxLength={500}
+                    required
+                    value={formData.description}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="pitch-deck" className="block text-sm font-medium text-secondary mb-2">
+                    Upload Pitch Deck
+                  </label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div className="space-y-2 text-center">
+                      <CloudUpload className="mx-auto h-12 w-12 text-muted" />
+                      <div className="flex text-sm text-gray-600">
+                        <label htmlFor="pitch-deck" className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80">
+                          <span>Upload a file</span>
+                          <Input 
+                            id="pitch-deck"
+                            type="file"
+                            className="sr-only"
+                            accept=".pdf,.ppt,.pptx"
+                            onChange={handleFileChange}
+                            required
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-muted">
+                        PDF or PowerPoint up to 10MB
+                      </p>
+                    </div>
+                  </div>
+                  {selectedFile && (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-muted">
+                      <FileText className="w-4 h-4" />
+                      <span>{selectedFile.name}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit Pitch Deck"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
