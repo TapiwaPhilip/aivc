@@ -6,7 +6,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
 const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
-const notificationEmail = Deno.env.get("NOTIFICATION_EMAIL") || "your-email@example.com";
+const notificationEmail = Deno.env.get("NOTIFICATION_EMAIL") || "tapiwaphilip@gmail.com";
 
 // Your notification email (replace this with your actual email)
 const TO_EMAIL = notificationEmail;
@@ -82,7 +82,7 @@ const handler = async (req: Request): Promise<Response> => {
   // Listen for the test event
   if (req.method === "GET") {
     console.log("Test endpoint accessed");
-    return new Response(JSON.stringify({ status: "OK", message: "Email notification service is running" }), {
+    return new Response(JSON.stringify({ status: "OK", message: "Email notification service is running", configuredEmail: TO_EMAIL }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
