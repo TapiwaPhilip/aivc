@@ -26,9 +26,15 @@ export const Values = () => {
   ];
 
   return (
-    <div className="py-24 bg-background">
-      <div className="container mx-auto px-4">
+    <div className="py-24 bg-background relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(109.6deg,rgba(223,234,247,0.2)_11.2%,rgba(244,248,252,0.2)_91.1%)] pointer-events-none" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
+          <div className="inline-block p-2 px-4 rounded-full bg-primary/5 text-primary text-sm font-medium mb-4">
+            Our Guiding Principles
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-secondary">
             Our Values
           </h2>
@@ -41,9 +47,11 @@ export const Values = () => {
           {values.map((value, index) => (
             <div
               key={index}
-              className="p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-shadow"
+              className="p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
             >
-              <div className="mb-4 text-primary">{value.icon}</div>
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 text-primary mb-4">
+                {value.icon}
+              </div>
               <h3 className="text-xl font-semibold mb-2 text-secondary">
                 {value.title}
               </h3>
