@@ -33,6 +33,27 @@ const Register = () => {
     setSubmitted(true);
     
     try {
+      // Check if email already exists in the database
+      const { data: existingInvestor } = await supabase
+        .from('investors')
+        .select('email')
+        .eq('email', formData.email)
+        .single();
+      
+      if (existingInvestor) {
+        // Email already exists, show friendly message
+        toast({
+          title: "Already Registered",
+          description: "Thank you for your continued interest! It appears you have already registered with this email address.",
+          variant: "default",
+          duration: 5000,
+        });
+        
+        setSubmitted(false);
+        setTimeout(() => navigate('/'), 2000);
+        return;
+      }
+      
       // Insert investor data into Supabase
       const { data, error } = await supabase
         .from('investors')
@@ -46,7 +67,21 @@ const Register = () => {
         })
         .select();
       
-      if (error) throw error;
+      if (error) {
+        // Check specifically for unique constraint violation
+        if (error.code === '23505' || error.message.includes('duplicate key')) {
+          toast({
+            title: "Already Registered",
+            description: "Thank you for your continued interest! It appears you have already registered with this email address.",
+            variant: "default",
+            duration: 5000,
+          });
+          setSubmitted(false);
+          setTimeout(() => navigate('/'), 2000);
+          return;
+        }
+        throw error;
+      }
 
       // Send email notification
       try {
